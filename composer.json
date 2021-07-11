@@ -1,0 +1,56 @@
+{
+    "name": "developion/core",
+    "description": "CraftCMS utility toolkit.",
+    "type": "craft-plugin",
+    "version": "0.1.1",
+    "license": "proprietary",
+    "support": {
+        "docs": "https://www.developion.com/#",
+        "issues": "https://www.developion.com/#"
+    },
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "developion",
+        "api"
+    ],
+    "authors": [
+        {
+            "name": "Developion",
+            "homepage": "https://www.developion.com/"
+        },
+        {
+            "name": "MarcusGaius",
+            "email": "marko.gajic@developion.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "craftcms/cms": "^3.6",
+        "luwes/craft3-codemirror": "^1.0",
+        "elasticsearch/elasticsearch": "^7.11",
+        "ether/seo": "^3.7",
+        "craftcms/redactor": "^2.8"
+    },
+    "require-dev": {
+        "codeception/codeception": "^4.1",
+        "vlucas/phpdotenv": "^3.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Developion\\Core\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Developion Core",
+        "handle": "developion-core",
+        "developer": "Developion",
+        "developerUrl": "https://www.developion.com/",
+        "documentationUrl": "https://www.developion.com/#",
+        "changelogUrl": "https://www.developion.com/#",
+        "class": "Developion\\Core\\Core"
+    }
+}
