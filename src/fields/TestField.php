@@ -17,7 +17,8 @@ class TestField extends Field
 {
     public $config;
 
-    private $partMap = [
+
+    private $_partMap = [
         [
             'template'      => 'textarea',
             'name'          => 'Test Rich Text',
@@ -41,17 +42,15 @@ class TestField extends Field
         
     }
     
-	public function normalizeValue($value, ElementInterface $element = null)
-	{
-        if ($value instanceof FieldConfigData)
-        return $value;
-        
-		// Craft::dd($value);
-		if (is_string($value))
-			$value = Json::decodeIfJson($value);
+	// public function normalizeValue($value, ElementInterface $element = null)
+	// {
+    //     if ($value instanceof FieldConfigData) return $value;
 
-		return new FieldConfigData($this->partData($this->partMap), $this->config, $element);
-	}
+	// 	if (is_string($value))
+	// 		$value = Json::decodeIfJson($value);
+
+	// 	return new FieldConfigData($this, $element);
+	// }
 
     /**
      * @inheritdoc
@@ -63,7 +62,7 @@ class TestField extends Field
 
 	public function getContentColumnType (): string
 	{
-		return Schema::TYPE_JSON;
+		return Schema::TYPE_BIGINT;
 	}
 
 	public function getSearchKeywords ($value, ElementInterface $element): string {
@@ -74,7 +73,9 @@ class TestField extends Field
     {
         $id = Html::id($this->handle);
 
-        $html = '';
+        $html = Html::hiddenInput("$this->handle[config]", $this->config);
+
+        $value = new FieldConfigData($this, $element);
 
         foreach ($value->getValues() as $part) {
             $html .= Cp::fieldHtml($part['template'], [
@@ -84,7 +85,7 @@ class TestField extends Field
                 'name' => "$this->handle[{$part['handle']}]",
                 'value' => $part['value'],
                 'rows' => 4,
-                'required' => true,
+                // 'required' => true,
                 'field' => $this,
                 'class' => 'full-width'
             ]);
@@ -97,5 +98,10 @@ class TestField extends Field
                 'class' => ['flex', 'flex-wrap', 'icon-link']
             ]
         );
+    }
+
+    public function getPartMap()
+    {
+        return $this->partData($this->_partMap);
     }
 }

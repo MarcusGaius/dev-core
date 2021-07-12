@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SEO for Craft CMS
  *
@@ -21,53 +22,48 @@ class FieldConfigData extends BaseObject
 {
     const RICHTEXT = 'craft\redactor\Field';
 
-    private $_parts;
+    protected $record;
 
-    public $record;
-
-    protected $partMap;
+    protected $field;
 
     protected $element;
 
-    private $prefix = 'developion_field_';
+    // Constructor
+    // =========================================================================
 
-	// Constructor
-	// =========================================================================
-
-	public function __construct($partMap, $config, ElementInterface $element = null)
-	{
-        $this->partMap = $partMap;
+    public function __construct(TestField $field, ElementInterface $element = null)
+    {
+        $this->field = $field;
         $this->element = $element;
-        if (empty($config)) {
-            $this->record = new FieldConfigurationRecord();
-            $this->record->config = $this->_getParts();
-            $this->record->save();
-        } else {
-            $this->record = FieldConfigurationRecord::find()->where(['id' => $config])->one();
-        }
+        $this->record = FieldConfigurationRecord::find()
+            ->where([
+                'id' => $this->element->getFieldValue($this->field->handle)
+            ])
+            ->one();
+        
     }
 
-	private function _getParts ()
-	{
+    private function _getParts()
+    {
         foreach ($this->partMap as &$part) {
         }
         return Json::encode($this->partMap);
     }
 
-	private function _render ($template, $variables)
-	{
-
+    private function _render($template, $variables)
+    {
     }
 
     public function getValues(): iterable
     {
-        $this->partMap[0]['value'] = '';
-        $return = [
-            'text' => $this->partMap[0]
-        ];
-        // $parts = $this->_parts();
-
-        return $return;
+        $data = Json::decodeIfJson($this->record?->config);
+        if (!$data) {
+            $data = $this->field->getPartMap();
+            array_walk($data, function (&$part) {
+                $part['value'] = '';
+            });
+        }
+        return $data;
     }
 
     public function getSearchableParts(): string
@@ -75,4 +71,21 @@ class FieldConfigData extends BaseObject
         return '';
     }
 
+    public function setRecord()
+    {
+        if (!$this->record) {
+            $this->record = new FieldConfigurationRecord();
+        }
+
+        $config = array_map(function ($part) {
+            $fieldData = Craft::$app->request->getBodyParam('fields');
+            $part['value'] = $fieldData ? $fieldData[$this->field->handle][$part['handle']] : '';
+            return $part;
+        }, $this->field->getPartMap());
+
+        $this->record->config = Json::encode($config, true);
+        $this->record->save();
+        $this->element->setFieldValue($this->field->handle, $this->record->id);
+        // Craft::dd($this->element->getFieldValue($this->field->handle));
+    }
 }

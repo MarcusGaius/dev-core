@@ -17,23 +17,11 @@ class Install extends Migration
 
     public function safeDown()
     {
-		$this->dropTableIfExists(RichText::$tableName);
 		$this->dropTableIfExists(FieldConfigurationRecord::$tableName);
     }
 
     public function createTables()
     {
-        // Rich Text
-        // ---------------------------------------------------------------------
-        $this->createTable(
-            RichText::$tableName,
-            [
-                'id' => $this->primaryKey(),
-                'ownerId' => $this->integer(),
-                'text'   => $this->text()->notNull(),
-                'siteId' => $this->integer()->null(),
-            ]
-        );
         
         $this->createTable(FieldConfigurationRecord::$tableName, [
             'id' => $this->primaryKey(),
@@ -49,6 +37,6 @@ class Install extends Migration
      */
     public function addForeignKeys()
     {
-        $this->addForeignKey(null, RichText::$tableName, ['ownerId'], FieldConfigurationRecord::$tableName, ['id'], 'CASCADE', null);
+        // $this->addForeignKey(null, RichText::$tableName, ['ownerId'], FieldConfigurationRecord::$tableName, ['id'], 'CASCADE', null);
     }
 }

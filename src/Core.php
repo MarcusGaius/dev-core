@@ -8,6 +8,7 @@ use craft\base\Plugin;
 use craft\events\FieldElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\helpers\ElementHelper;
 use craft\i18n\PhpMessageSource;
 use craft\services\Fields;
 use craft\web\UrlManager;
@@ -63,13 +64,13 @@ class Core extends Plugin
             Field::class,
             Field::EVENT_BEFORE_ELEMENT_SAVE,
             function (FieldElementEvent $event) {
-                if ($event->sender instanceof TestField) {
-                    $field = $event->sender;
-                    if (!$field->config) {
-                        $fieldConfig = new FieldConfigData($field->partMap);
-                        $field->config = $fieldConfig->id;
-                    }
-                    Craft::dd($field);
+                // Craft::dd($event);
+                if (
+                    $event->sender instanceof TestField &&
+                    in_array($event->sender->handle, $event->element->getDirtyFields())
+                ) {
+                    (new FieldConfigData($event->sender, $event->element))
+                        ->setRecord();
                 }
             }
         );
