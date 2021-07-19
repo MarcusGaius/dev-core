@@ -3,6 +3,7 @@
 namespace Developion\Core\migrations;
 
 use craft\db\Migration;
+use craft\db\Table;
 use Developion\Core\records\FieldConfigurationRecord;
 use Developion\Core\records\RichTextRecord as RichText;
 
@@ -25,7 +26,8 @@ class Install extends Migration
         
         $this->createTable(FieldConfigurationRecord::$tableName, [
             'id' => $this->primaryKey(),
-            'config' => $this->json()->notNull(),
+            'ownerId' => $this->bigInteger(),
+            'config' => $this->json()->defaultValue('')->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -37,6 +39,6 @@ class Install extends Migration
      */
     public function addForeignKeys()
     {
-        // $this->addForeignKey(null, RichText::$tableName, ['ownerId'], FieldConfigurationRecord::$tableName, ['id'], 'CASCADE', null);
+        // $this->addForeignKey(null, FieldConfigurationRecord::$tableName, ['ownerId'], Table::FIELDS, ['id'], 'CASCADE');
     }
 }

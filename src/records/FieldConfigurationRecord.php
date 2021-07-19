@@ -8,7 +8,8 @@ use craft\db\ActiveRecord;
  * Class RichTextRecord
  *
  * @property int $id
- * @property string $config
+ * @property int|null $ownerId
+ * @property json $config
  * @property int|null $siteId
  *
  * @package Developion\Core\records

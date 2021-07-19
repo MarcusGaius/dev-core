@@ -11,9 +11,12 @@ namespace Developion\Core\models;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\base\Field;
 use craft\base\FieldInterface;
 use craft\db\Query;
+use craft\elements\Entry;
 use craft\helpers\Json;
+use craft\records\Entry as EntryRecord;
 use Developion\Core\fields\TestField;
 use Developion\Core\records\FieldConfigurationRecord;
 use yii\base\BaseObject;
@@ -22,11 +25,11 @@ class FieldConfigData extends BaseObject
 {
     const RICHTEXT = 'craft\redactor\Field';
 
-    protected $record;
+    protected FieldConfigurationRecord|null $record;
 
     protected $field;
 
-    protected $element;
+    protected Entry $element;
 
     // Constructor
     // =========================================================================
@@ -35,12 +38,14 @@ class FieldConfigData extends BaseObject
     {
         $this->field = $field;
         $this->element = $element;
+        $pluginHandle = $this->field->handle;
+        // $entry = EntryRecord::findOne($this->element->getId());
+        // Craft::dd();
         $this->record = FieldConfigurationRecord::find()
             ->where([
-                'id' => $this->element->getFieldValue($this->field->handle)
+                'id' => $this->element->getBehavior('customFields')->$pluginHandle
             ])
             ->one();
-        
     }
 
     private function _getParts()
@@ -76,9 +81,16 @@ class FieldConfigData extends BaseObject
         if (!$this->record) {
             $this->record = new FieldConfigurationRecord();
         }
-
         $config = array_map(function ($part) {
+            // $pluginHandle = $this->field->handle;
+            // $fieldData = $this->element->getBehavior('customFields');
+            // Craft::dd($fieldData);
+            // $part['value'] = $fieldData->$pluginHandle[$part['handle']];
+            // return $part;
             $fieldData = Craft::$app->request->getBodyParam('fields');
+            // if (!$fieldData) {
+            //     $fieldData = [$this->field->handle => Json::decode($this->record->config)];
+            // }
             $part['value'] = $fieldData ? $fieldData[$this->field->handle][$part['handle']] : '';
             return $part;
         }, $this->field->getPartMap());
@@ -86,6 +98,14 @@ class FieldConfigData extends BaseObject
         $this->record->config = Json::encode($config, true);
         $this->record->save();
         $this->element->setFieldValue($this->field->handle, $this->record->id);
-        // Craft::dd($this->element->getFieldValue($this->field->handle));
+    }
+
+    public function setOwnerId()
+    {
+        $this->record = FieldConfigurationRecord::findOne(
+            $this->element->getFieldValue($this->field->handle)
+        );
+        $this->record->ownerId = $this->element->getSourceId();
+        $this->record->save();
     }
 }

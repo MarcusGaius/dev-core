@@ -15,9 +15,6 @@ use Developion\Core\models\FieldConfigData;
 
 class TestField extends Field
 {
-    public $config;
-
-
     private $_partMap = [
         [
             'template'      => 'textarea',
@@ -41,16 +38,6 @@ class TestField extends Field
         }, $partMap);
         
     }
-    
-	// public function normalizeValue($value, ElementInterface $element = null)
-	// {
-    //     if ($value instanceof FieldConfigData) return $value;
-
-	// 	if (is_string($value))
-	// 		$value = Json::decodeIfJson($value);
-
-	// 	return new FieldConfigData($this, $element);
-	// }
 
     /**
      * @inheritdoc
@@ -73,11 +60,11 @@ class TestField extends Field
     {
         $id = Html::id($this->handle);
 
-        $html = Html::hiddenInput("$this->handle[config]", $this->config);
+        $html = Html::hiddenInput("$this->handle", $element->getFieldValue($this->handle) ?? 0);
 
-        $value = new FieldConfigData($this, $element);
+        $values = new FieldConfigData($this, $element);
 
-        foreach ($value->getValues() as $part) {
+        foreach ($values->getValues() as $part) {
             $html .= Cp::fieldHtml($part['template'], [
                 'label' => $part['name'],
                 'handle' => $part['handle'],
