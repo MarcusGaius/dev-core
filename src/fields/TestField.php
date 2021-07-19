@@ -55,6 +55,8 @@ class TestField extends Field
 	public function getSearchKeywords ($value, ElementInterface $element): string {
 		return $value->getSearchableParts();
 	}
+	
+    public $config;
 
     protected function inputHtml($value, ElementInterface $element = null): string
     {

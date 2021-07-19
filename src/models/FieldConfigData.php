@@ -15,11 +15,13 @@ use craft\base\Field;
 use craft\base\FieldInterface;
 use craft\db\Query;
 use craft\elements\Entry;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\records\Entry as EntryRecord;
 use Developion\Core\fields\TestField;
 use Developion\Core\records\FieldConfigurationRecord;
 use yii\base\BaseObject;
+use yii\base\Behavior;
 
 class FieldConfigData extends BaseObject
 {
@@ -83,15 +85,24 @@ class FieldConfigData extends BaseObject
         }
         $config = array_map(function ($part) {
             // $pluginHandle = $this->field->handle;
-            // $fieldData = $this->element->getBehavior('customFields');
-            // Craft::dd($fieldData);
+            $fieldData = $this->element->getBehavior('customFields');
             // $part['value'] = $fieldData->$pluginHandle[$part['handle']];
             // return $part;
-            $fieldData = Craft::$app->request->getBodyParam('fields');
+            // $fieldData = Craft::$app->request->getBodyParam('fields');
             // if (!$fieldData) {
             //     $fieldData = [$this->field->handle => Json::decode($this->record->config)];
             // }
-            $part['value'] = $fieldData ? $fieldData[$this->field->handle][$part['handle']] : '';
+            $array = false;
+            if( is_numeric($fieldData->{$this->field->handle}) ) {
+                $array = true;
+                $this->record = FieldConfigurationRecord::findOne($fieldData->{$this->field->handle});
+                Craft::dd($fieldData->{$this->field->handle} . ' ' . $this->element->getFieldValue($this->field->handle));
+                $fieldData = Craft::$app->request->getBodyParam('fields');
+            }
+            
+            $part['value'] = $array ? 
+                $fieldData[$this->field->handle][$part['handle']] :
+                $fieldData->{$this->field->handle}[$part['handle']];
             return $part;
         }, $this->field->getPartMap());
 
@@ -105,7 +116,7 @@ class FieldConfigData extends BaseObject
         $this->record = FieldConfigurationRecord::findOne(
             $this->element->getFieldValue($this->field->handle)
         );
-        $this->record->ownerId = $this->element->getSourceId();
+        $this->record->ownerId = $this->element->getCanonicalId();
         $this->record->save();
     }
 }

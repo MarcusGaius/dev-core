@@ -52,6 +52,7 @@ class Core extends Plugin
         ];
     }
 
+    
     protected function _cpEvents()
     {
         Event::on(
@@ -64,10 +65,13 @@ class Core extends Plugin
             Field::class,
             Field::EVENT_BEFORE_ELEMENT_SAVE,
             function (FieldElementEvent $event) {
+                // Craft::dd(Craft::$app->request);
                 if (
                     $event->sender instanceof TestField &&
                     in_array($event->sender->handle, $event->element->getDirtyFields())
                 ) {
+                    $event->element->getIsUnpublishedDraft();
+                    // Craft::dd($event->element->getBehavior('customFields')->{$event->sender->handle});
                     (new FieldConfigData($event->sender, $event->element))
                         ->setRecord();
                 }
@@ -77,7 +81,7 @@ class Core extends Plugin
             Field::class,
             Field::EVENT_AFTER_ELEMENT_SAVE,
             function (FieldElementEvent $event) {
-                // Craft::dd($event->element->getFieldValues());
+                
                 if (
                     $event->sender instanceof TestField &&
                     in_array($event->sender->handle, $event->element->getDirtyFields())
