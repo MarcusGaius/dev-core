@@ -62,7 +62,7 @@ class TestField extends Field
     {
         $id = Html::id($this->handle);
 
-        $html = Html::hiddenInput("$this->handle", $element->getFieldValue($this->handle) ?? 0);
+        $html = Html::hiddenInput("$this->handle[value]", $element->getFieldValue($this->handle) ?? 0);
 
         $values = new FieldConfigData($this, $element);
 

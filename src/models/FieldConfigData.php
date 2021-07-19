@@ -86,6 +86,7 @@ class FieldConfigData extends BaseObject
         $config = array_map(function ($part) {
             // $pluginHandle = $this->field->handle;
             $fieldData = $this->element->getBehavior('customFields');
+            // Craft::dd($fieldData);
             // $part['value'] = $fieldData->$pluginHandle[$part['handle']];
             // return $part;
             // $fieldData = Craft::$app->request->getBodyParam('fields');
@@ -93,14 +94,21 @@ class FieldConfigData extends BaseObject
             //     $fieldData = [$this->field->handle => Json::decode($this->record->config)];
             // }
             $array = false;
-            if( is_numeric($fieldData->{$this->field->handle}) ) {
-                $array = true;
+            if ( is_numeric($fieldData->{$this->field->handle}) ) {
                 $this->record = FieldConfigurationRecord::findOne($fieldData->{$this->field->handle});
-                Craft::dd($fieldData->{$this->field->handle} . ' ' . $this->element->getFieldValue($this->field->handle));
+                
+            }
+            elseif ( !empty($fieldData->{$this->field->handle}['value']) ) {
+                if ($fieldData = Craft::$app->request->getBodyParam('fields')) {
+                    $array = true;
+                }
+                $this->record = FieldConfigurationRecord::findOne($fieldData->{$this->field->handle}['value']);
+            } else {
+                
                 $fieldData = Craft::$app->request->getBodyParam('fields');
             }
-            
-            $part['value'] = $array ? 
+
+            $part['value'] = $array ?
                 $fieldData[$this->field->handle][$part['handle']] :
                 $fieldData->{$this->field->handle}[$part['handle']];
             return $part;
